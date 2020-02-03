@@ -1,6 +1,7 @@
 var express = require('express');
 var bodyParser = require('body-parser');
 var nodemailer = require('nodemailer');
+var request = require('request');
 var app = express();
 
 
@@ -18,34 +19,42 @@ app.post('/', function(req, res) {
     var lastName = req.body.lastName;
     var email = req.body.email;
 
-    var transporter = nodemailer.createTransport({
-        service: 'gmail',
-        host: 'smtp.gmail.com',
-        auth: {
-            user: 'lakshman.kotiki@indianic.com',
-            pass: '*******'
-        },
-        tls: { rejectUnauthorized: false },
-        debug: true
-    });
-
-    var mailOptions = {
-        from: 'lakshman.kotiki@indianic.com',
-        to: email,
-        subject: 'Sending Email using Node.js',
-        text: 'That was easy!'
+    var data = {
+        members: [
+            {
+                email_address: email,
+                status: 'subscribed'
+            }
+        ]
     };
 
-    transporter.sendMail(mailOptions, function(error, info) {
-        if (error) {
+    var jsonData = JSON.stringify(data);
+
+    var options = {
+        url: 'https://us4.api.mailchimp.com/3.0/lists/923d2cc836df',
+        method: 'POST',
+        headers: {
+            'Authorization': 'Lakshman1 6278c2a98dee0042b8bd0d71e429ba0e-us4'
+        },
+        body: jsonData
+    };
+
+    request(options, function(error, response, body) {
+        if(error) {
             console.log(error);
         } else {
-            console.log('Email sent: ' + info.response);
+            console.log(response.statusCode);
         }
-    });
+    })
+
 });
 
 var port = 3000;
 app.listen(port, function() {
     console.log("application listening on port: ", port);
 });
+
+
+//apikey - 6278c2a98dee0042b8bd0d71e429ba0e-us4
+
+//listid - 923d2cc836df
